@@ -1,0 +1,2 @@
+python3 generate.py --sample 1 --pics 1 --ckpt checkpoint/network-simpsons-256.pt --size 256
+python3 two_models_swap.py --model2 checkpoint/cat.pt  --size1 256 --model1 checkpoint/face2dog_30k.pt --size2 256  -o cat2dog3
