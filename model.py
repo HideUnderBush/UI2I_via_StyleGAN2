@@ -484,8 +484,7 @@ class Generator(nn.Module):
         save_for_swap=False,
         swap=False,
         swap_tensor=None,
-        #swap_layer=5, #swap_ana
-        swap_layer=3,
+        swap_layer=5, 
         multi_style=False,
         multi_style_layers=5,
         multi_style_latent=None,
@@ -540,8 +539,8 @@ class Generator(nn.Module):
         skip = self.to_rgb1(out, latent[:, 1])
 
         i = 1
-        # default swap_layer is 5 (size=32)
 
+        # default swap_layer is 5 (size=32)
         for conv1, conv2, noise1, noise2, to_rgb in zip(
             self.convs[::2], self.convs[1::2], noise[1::2], noise[2::2], self.to_rgbs
         ):
