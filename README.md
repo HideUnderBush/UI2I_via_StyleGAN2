@@ -8,8 +8,11 @@ paper: [Unsupervised Image-to-Image Translation via Pre-trained StyleGAN2 Networ
 
 ### Step 1: Model Fine-tuning
 To obtain the target model, you need to follow the instruction of data preparation stated in the StyleGAN2 pytorch implementation [here](ub.com/rosinality/stylegan2-pytorch) (we modify the train.py code to freeze FC)
+
 ``python prepare_data.py --out LMDB_PATH --n_worker N_WORKER --size SIZE1,SIZE2,SIZE3,... DATASET_PATH``
+
 And fine-tune the model with data in the target domain:
+
 ``python -m torch.distributed.launch --nproc_per_node=N_GPU --master_port=PORT train.py --batch BATCH_SIZE LMDB_PATH --ckpt your_base_model_path`` 
 
 ### Step 2: Closed-Form GAN space
@@ -31,6 +34,7 @@ In additon to multi-modal translation, the style of the output can be specified 
 
 ### pre-trained base model and dataset
 We use the StyleGAN2 face models trained on FFHQ, [256x256](https://drive.google.com/open?id=1PQutd-JboOCOZqmd95XWxWrO8gGEvRcO) (by @rosinality). And the 1024x1024 can be found in the [StyleGAN2 official implementation](https://github.com/NVlabs/stylegan2), model conversion between TF and Pytorch is needed. Models fine-tuned on such models can be used for I2I translation, though with FreezeFC they can achieve better results. 
+
 Many thanks to [Gwern](https://www.gwern.net/) for providing the Anime dataset [Danbooru](https://www.gwern.net/Danbooru2018) and [Doron Adler](https://linktr.ee/Norod78) and [Justin Pinkney](https://www.justinpinkney.com/) for providing the cartoon dataset. 
 
 ### Some Results
