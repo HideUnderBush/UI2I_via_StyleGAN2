@@ -49,9 +49,6 @@ class Inception3Feature(Inception3):
 
 
 def load_patched_inception_v3():
-    # inception = inception_v3(pretrained=True)
-    # inception_feat = Inception3Feature()
-    # inception_feat.load_state_dict(inception.state_dict())
     inception_feat = InceptionV3([3], normalize_input=False)
 
     return inception_feat

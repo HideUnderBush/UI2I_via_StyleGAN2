@@ -58,7 +58,6 @@ if __name__ == "__main__":
     )
 
     grid = utils.save_image(
-        #torch.cat([img1, img, img2], 0),
         img,
         f"{args.out_prefix}_index-{args.index}_degree-{args.degree}_0.png",
         normalize=True,
@@ -66,7 +65,6 @@ if __name__ == "__main__":
         nrow=args.n_sample,
     )
     grid = utils.save_image(
-        #torch.cat([img1, img, img2], 0),
         img1,
         f"{args.out_prefix}_index-{args.index}_degree-{args.degree}_1.png",
         normalize=True,
@@ -74,7 +72,6 @@ if __name__ == "__main__":
         nrow=args.n_sample,
     ) 
     grid = utils.save_image(
-        #torch.cat([img1, img, img2], 0),
         img2,
         f"{args.out_prefix}_index-{args.index}_degree-{args.degree}_2.png",
         normalize=True,
