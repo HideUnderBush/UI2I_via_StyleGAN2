@@ -7,7 +7,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--out", type=str, default="factor.pt")
-    parser.add_argument("ckpt", type=str)
+    parser.add_argument("--ckpt", type=str)
 
     args = parser.parse_args()
 

@@ -25,7 +25,7 @@ parser.add_argument("--model1", type=str, required=True)
 parser.add_argument("--model2", type=str, required=True)
 parser.add_argument("--size1", type=int, default=1024)
 parser.add_argument("--size2", type=int, default=1024)
-parser.add_argument("-o", "--output", type=str, required=True)
+parser.add_argument("-o", "--output", type=str, default="output")
 parser.add_argument("--device", type=str, default="cuda")
 parser.add_argument('--truncation_mean', type=int, default=4096)
 parser.add_argument("-r", "--randnum", type=int, default=10)
@@ -136,21 +136,21 @@ for i in range(num):
 
 for i in range(num):
     print("processing I2I [{}/{}]".format(i, num))
-    # swap=5, style=5
+    # swap=5
     img3, _ = g_ema2([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=5, swap_tensor=swap_total[i][2],  multi_style=True, multi_style_layers=3,  multi_style_latent=[sample_ref_z[i]])
     img3_name = args.output + str(i) + "_ls5_" + ".png"
     img3 = make_image(img3)
     out3 = Image.fromarray(img3[0])
     out3.save(img3_name)
 
-    # swap=3, style=5
+    # swap=3
     img4, _ = g_ema2([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=3, swap_tensor=swap_total[i][1],  multi_style=True, multi_style_layers=3,  multi_style_latent=[sample_ref_z[i]])
     img4_name = args.output + str(i) + "_ls3_" + ".png"
     img4 = make_image(img4)
     out4 = Image.fromarray(img4[0])
     out4.save(img4_name)
 
-    # swap=1, style=5
+    # swap=1
     img5, _ = g_ema2([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=1, swap_tensor=swap_total[i][0],  multi_style=True, multi_style_layers=3,  multi_style_latent=[sample_ref_z[i]])
     img5_name = args.output + str(i) + "_ls1_" + ".png"
     img5 = make_image(img5)

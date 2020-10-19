@@ -24,7 +24,7 @@ parser.add_argument("--model1", type=str, required=True)
 parser.add_argument("--model2", type=str, required=True)
 parser.add_argument("--size1", type=int, default=1024)
 parser.add_argument("--size2", type=int, default=1024)
-parser.add_argument("-o", "--output", type=str, required=True)
+parser.add_argument("-o", "--output", type=str, default="output")
 parser.add_argument("--swap_layer", type=int, default=3)
 parser.add_argument("--device", type=str, default="cuda")
 parser.add_argument('--truncation_mean', type=int, default=4096)
@@ -93,10 +93,6 @@ with torch.no_grad():
     mean_latent = g_ema2.mean_latent(args.truncation_mean)
 
 img1, swap_res = g_ema1([input_latent], input_is_latent=True, save_for_swap=True, swap_layer=args.swap_layer)
-img1_name = args.output + str(seed) + "_a.png"
-img1 = make_image(img1)
-out1 = Image.fromarray(img1[0])
-out1.save(img1_name)
 
 for i in range(args.stylenum):
     sample_z_style = torch.randn(1, 512, device=args.device)

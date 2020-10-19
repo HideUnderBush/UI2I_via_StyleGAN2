@@ -13,8 +13,7 @@ from utils import AddPepperNoise
 import lpips
 from model import Generator
 
-# fix random seed for reproductivity
-torch.manual_seed(0)
+#torch.manual_seed(111)
 
 def noise_regularize(noises):
     loss = 0
@@ -80,9 +79,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", type=str, required=True)
-    parser.add_argument("--model", type=str, required=True)
     parser.add_argument("--size", type=int, default=256)
-    parser.add_argument("--size2", type=int, default=1024)
     parser.add_argument("--lr_rampup", type=float, default=0.05)
     parser.add_argument("--lr_rampdown", type=float, default=0.25)
     parser.add_argument("--lr", type=float, default=0.1)
@@ -93,8 +90,8 @@ if __name__ == "__main__":
     parser.add_argument("--mse", type=float, default=0)
     parser.add_argument("--w_plus", action="store_true")
     parser.add_argument("--device", type=str, default="cuda")
-    parser.add_argument("files", metavar="FILES", nargs="+")
     parser.add_argument("--fact", type=str,required=True )
+    parser.add_argument("files", metavar="FILES", nargs="+")
 
     args = parser.parse_args()
     eigvec = torch.load(args.fact)["eigvec"].to(args.device)
@@ -128,11 +125,6 @@ if __name__ == "__main__":
     g_ema = g_ema.to(device)
     trunc = g_ema.mean_latent(4096)
 
-    g_ema2 = Generator(1024, 512, 8)
-    g_ema2.load_state_dict(torch.load(args.model)["g_ema"], strict=False)
-    g_ema2.eval()
-    g_ema2 = g_ema2.to(device)
-
     with torch.no_grad():
         noise_sample = torch.randn(1, 512, device=device)
         latent = g_ema.get_latent(noise_sample)
@@ -146,11 +138,7 @@ if __name__ == "__main__":
         weight_mean = weight_sample.mean(0)
         weight_std = ((weight_sample - weight_mean).pow(2).sum() / n_mean_weight) ** 0.5 
 
-        #direction = degree_mean * torch.mm(eigvec.detach(), weight_mean.T) 
         direction = torch.mm(eigvec, weight_mean.T) 
-
-        #latent_mean = latent.mean(0)
-        #latent_std = ((latent - latent_mean).pow(2).sum() / n_mean_latent) ** 0.5
 
     percept = lpips.PerceptualLoss(
         model="net-lin", net="vgg", use_gpu=device.startswith("cuda")
@@ -161,16 +149,9 @@ if __name__ == "__main__":
     for noise in noises_single:
         noises.append(noise.repeat(imgs.shape[0], 1, 1, 1).normal_())
 
-    noises_single2 = g_ema2.make_noise()
-    noises2 = []
-    for noise in noises_single2:
-        noises2.append(noise.repeat(imgs.shape[0], 1, 1, 1).normal_())
-
-    print(direction.shape)
     direction_in = direction.T
     weight_in = weight_mean 
 
-    #direction_in.requires_grad = True
     weight_mean.requires_grad = True
 
     for noise in noises:
@@ -182,9 +163,7 @@ if __name__ == "__main__":
     latent_path = []
     weight_path = []
 
-    #imgs, _ = g_ema([latent], input_is_latent=True, noise=noises)
     imgs.detach()
-    print(imgs.shape)
 
     for i in pbar:
         t = i / args.step
@@ -192,13 +171,8 @@ if __name__ == "__main__":
         optimizer.param_groups[0]["lr"] = lr
         noise_strength = weight_std * args.noise * max(0, 1 - t / args.noise_ramp) ** 2
         weight_n = latent_noise(weight_in, noise_strength.item())
-        #direction_n = latent_noise(direction_in, noise_strength.item())
         direction_n = torch.mm(weight_in, eigvec) 
-        #print(direction_n.shape)
-        #print(weight_mean[0][0])
-        #print(direction_in[0][0])
 
-        #img_gen, _ = g_ema([latent + direction_n], input_is_latent=True, noise=noises)
         img_gen, _ = g_ema([direction_n], input_is_latent=True, noise=noises)
 
         batch, channel, height, width = img_gen.shape
@@ -237,12 +211,10 @@ if __name__ == "__main__":
         )
 
     img_gen, _ = g_ema([latent_path[-1]], input_is_latent=True, noise=noises)
-    img_i2i, _ = g_ema2([latent_path[-1]], input_is_latent=True, noise=noises2)
 
     filename = os.path.splitext(os.path.basename(args.files[0]))[0] + ".pt"
 
     img_ar = make_image(img_gen)
-    img_i2i = make_image(img_i2i)
 
     result_file = {}
     for i, input_name in enumerate(args.files):
@@ -260,9 +232,5 @@ if __name__ == "__main__":
         img_name = os.path.splitext(os.path.basename(input_name))[0] + "-project.png"
         pil_img = Image.fromarray(img_ar[i])
         pil_img.save(img_name)
-
-        img_i2i_name = os.path.splitext(os.path.basename(input_name))[0] + "-i2i.png"
-        pil_img = Image.fromarray(img_i2i[i])
-        pil_img.save(img_i2i_name)
 
     torch.save(result_file, filename)
