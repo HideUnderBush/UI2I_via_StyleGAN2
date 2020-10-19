@@ -419,6 +419,10 @@ if __name__ == "__main__":
         discriminator.load_state_dict(ckpt["d"])
         g_ema.load_state_dict(ckpt["g_ema"])
 
+        for name, param in g_ema.named_parameters():
+            if param.requires_grad and 'style' in name:
+                param.requires_grad = False
+
         g_optim.load_state_dict(ckpt["g_optim"])
         d_optim.load_state_dict(ckpt["d_optim"])
 
