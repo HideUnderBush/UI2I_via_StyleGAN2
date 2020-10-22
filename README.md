@@ -11,7 +11,7 @@ paper: [Unsupervised Image-to-Image Translation via Pre-trained StyleGAN2 Networ
 * CUDA 10.1
 
 ### Step 1: Model Fine-tuning
-To obtain the target model, you need to follow the instruction of data preparation stated in the StyleGAN2 pytorch implementation [here](ub.com/rosinality/stylegan2-pytorch) (we modify the train.py code to freeze FC)
+To obtain the target model, you need to follow the instruction of data preparation stated in the StyleGAN2 pytorch implementation [here](ub.com/rosinality/stylegan2-pytorch) 
 
 ``python prepare_data.py --out LMDB_PATH --n_worker N_WORKER --size SIZE1,SIZE2,SIZE3,... DATASET_PATH``
 
