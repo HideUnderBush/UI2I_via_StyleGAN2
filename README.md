@@ -1,4 +1,6 @@
 We proposed an unsupervised image-to-image translation method via pre-trained StyleGAN2 network. 
+[![License CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC4.0-blue.svg)](https://github.com/HideUnderBush/UI2I_via_StyleGAN2/blob/main/LICENSE.md)
+
 ![mona](results/mona_multi.png)
 
 paper: [Unsupervised Image-to-Image Translation via Pre-trained StyleGAN2 Network](https://arxiv.org/abs/2010.05713)
