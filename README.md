@@ -1,4 +1,5 @@
 We proposed an unsupervised image-to-image translation method via pre-trained StyleGAN2 network. 
+![mona](results/mona_multi.jpg)
 
 paper: [Unsupervised Image-to-Image Translation via Pre-trained StyleGAN2 Network](https://arxiv.org/abs/2010.05713)
 
