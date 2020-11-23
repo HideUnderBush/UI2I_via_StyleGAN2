@@ -86,20 +86,6 @@ g_ema2.load_state_dict(torch.load(args.model2, map_location='cuda:0')["g_ema"], 
 g_ema2.eval()
 g_ema2 = g_ema2.to(device)
 
-## prepare input vector
-sample_z_style = torch.randn(1, 512, device=args.device)
-sample_z1 = torch.randn(1, 512, device=args.device)
-
-num = 5
-sample_z = []
-sample_ref_z = []
-for i in range(num):
-    sample_zi = torch.randn(1, 512, device=args.device)
-    sample_ref_zi = torch.randn(1, 512, device=args.device)
-
-    sample_z.append(sample_zi)
-    sample_ref_z.append(sample_ref_zi)
-
 ## noise
 noises_single = g_ema2.make_noise()
 noises = []
@@ -113,48 +99,33 @@ with torch.no_grad():
 
 # generate ref and identity
 swap_res = []
-swap_total = []
-
 swap_ref_res = []
-swap_ref_total = []
-for i in range(num):
-    print("processing base figure [{}/{}]".format(i, num))
-    for j in range(1, 6, 2):
-        img1, swap_res_i = g_ema1([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, save_for_swap=True, swap_layer=j)
-        swap_res.append(swap_res_i)
+for j in range(1, 6, 2):
+    img1, swap_res_i = g_ema1([input_latent], truncation=0.5, truncation_latent=mean_latent2, save_for_swap=True, swap_layer=j)
+    swap_res.append(swap_res_i)
 
-        img2, swap_ref_res_i = g_ema2([sample_ref_z[i]], truncation=0.5, truncation_latent=mean_latent2, save_for_swap=True, swap_layer=j)
-        swap_ref_res.append(swap_ref_res_i)
+    img2, swap_ref_res_i = g_ema2([style_latent], truncation=0.5, truncation_latent=mean_latent2, save_for_swap=True, swap_layer=j)
+    swap_ref_res.append(swap_ref_res_i)
 
-    # identity
-    swap_total.append(swap_res)
-    swap_res = []
+# swap=5
+img3, _ = g_ema2([input_latent], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=5, swap_tensor=swap_res[2],  multi_style=True, multi_style_layers=3,  multi_style_latent=[style_latent])
+img3_name = args.output + "_ls5_" + ".png"
+img3 = make_image(img3)
+out3 = Image.fromarray(img3[0])
+out3.save(img3_name)
 
-    # ref
-    swap_ref_total.append(swap_ref_res)
-    swap_ref_res = []
+# swap=3
+img4, _ = g_ema2([input_latent], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=3, swap_tensor=swap_res[1],  multi_style=True, multi_style_layers=3,  multi_style_latent=[style_latent])
+img4_name = args.output + "_ls3_" + ".png"
+img4 = make_image(img4)
+out4 = Image.fromarray(img4[0])
+out4.save(img4_name)
 
-for i in range(num):
-    print("processing I2I [{}/{}]".format(i, num))
-    # swap=5
-    img3, _ = g_ema2([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=5, swap_tensor=swap_total[i][2],  multi_style=True, multi_style_layers=3,  multi_style_latent=[sample_ref_z[i]])
-    img3_name = args.output + str(i) + "_ls5_" + ".png"
-    img3 = make_image(img3)
-    out3 = Image.fromarray(img3[0])
-    out3.save(img3_name)
-
-    # swap=3
-    img4, _ = g_ema2([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=3, swap_tensor=swap_total[i][1],  multi_style=True, multi_style_layers=3,  multi_style_latent=[sample_ref_z[i]])
-    img4_name = args.output + str(i) + "_ls3_" + ".png"
-    img4 = make_image(img4)
-    out4 = Image.fromarray(img4[0])
-    out4.save(img4_name)
-
-    # swap=1
-    img5, _ = g_ema2([sample_z[i]], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=1, swap_tensor=swap_total[i][0],  multi_style=True, multi_style_layers=3,  multi_style_latent=[sample_ref_z[i]])
-    img5_name = args.output + str(i) + "_ls1_" + ".png"
-    img5 = make_image(img5)
-    out5 = Image.fromarray(img5[0])
-    out5.save(img5_name)
+# swap=1
+img5, _ = g_ema2([input_latent], truncation=0.5, truncation_latent=mean_latent2, swap=True, swap_layer=1, swap_tensor=swap_res[0],  multi_style=True, multi_style_layers=3,  multi_style_latent=[style_latent])
+img5_name = args.output + "_ls1_" + ".png"
+img5 = make_image(img5)
+out5 = Image.fromarray(img5[0])
+out5.save(img5_name)
 
 
